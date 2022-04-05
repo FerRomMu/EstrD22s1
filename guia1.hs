@@ -24,7 +24,7 @@ ej 1: sucesor (sumar 5 4)
 ej 2: maxDelPar (5, (sucesor 9))
 ej 3: sumar (sucesor 0) (maxDelPar (divisionYResto 19 10))
 ej 4: sumar (sucesor 4) 5
--} 
+--} 
 
 -- PARTE 2: Tipos enumerativos
 
@@ -44,6 +44,7 @@ iguales Sur Sur = True
 iguales _ _ = False
 
 siguiente :: Dir -> Dir
+--precon: El valor dado no puede ser Oeste.
 siguiente Norte = Este
 siguiente Este = Sur
 siguiente Sur = Oeste
@@ -58,6 +59,7 @@ empiezaConM Martes = True
 empiezaConM Miercoles = True
 empiezaConM _ = False
 
+{-
 --hecho en clases
 vieneDespues :: DiaDeSemana -> DiaDeSemana -> Bool
 vieneDespues Lunes Domingo = True
@@ -68,10 +70,10 @@ vieneDespues Viernes Jueves = True
 vieneDespues Sabado Viernes = True
 vieneDespues Domingo Sabado = True
 vieneDespues _ _ = False
+-}
 
 --basado en sugerencia de Fidel
 vieneDespues2 :: DiaDeSemana -> DiaDeSemana -> Bool
-vieneDespues2 Lunes Domingo = True
 vieneDespues2 d1 d2 = diaDeSemanaEnNumero d1 > diaDeSemanaEnNumero d2
 
 diaDeSemanaEnNumero :: DiaDeSemana -> Int
@@ -93,6 +95,7 @@ negar :: Bool -> Bool
 negar False = True
 negar True = False
 
+{-
 --Versiones no tan felices (previos a corrección)
 implica :: Bool -> Bool -> Bool
 implica True False = False
@@ -106,6 +109,7 @@ or :: Bool -> Bool -> Bool
 or True _ = True
 or _ True = True
 or _ _ = False
+--}
 
 --Post corrección (evitar miedo al booleano)
 implica2 :: Bool -> Bool -> Bool
@@ -168,6 +172,7 @@ unoSi :: Bool -> Int
 unoSi True = 1
 unoSi _ = 0
 
+{--
 --Poco feliz grita SUBTAREA
 cantidadDePokemonDe :: TipoDePokemon -> Entrenador -> Int
 cantidadDePokemonDe t (E _ p1 p2) = if (esTipo t p1 && esTipo t p2)
@@ -175,6 +180,7 @@ cantidadDePokemonDe t (E _ p1 p2) = if (esTipo t p1 && esTipo t p2)
                                       else if (esTipo t p1 || esTipo t p2) 
                                         then 1
                                         else 0
+--}
 
 cantidadDePokemonDe2 :: TipoDePokemon -> Entrenador -> Int
 cantidadDePokemonDe2 t (E _ p1 p2) = unoSi(esTipo t p1) + unoSi(esTipo t p2)
@@ -198,6 +204,7 @@ swap (x,y) = (y,x)
 {-¿Porque estas funciones son polimorficas?
 Porque pueden recibir cualquier tipo (en swap incluso hasta dos tipos distintos que serian a y b).
 y funcionar de igual manera. -}
+--}
 
 -- PARTE 5
 estaVacia :: [a] -> Bool

@@ -54,4 +54,49 @@ losMenoresA n (x:xs) = if x < n
                         then x : losMenoresA n xs
                         else losMenoresA n xs
 
+lasDeLongitudMayorA :: Int -> [[a]] -> [[a]]
+--Dados un número n y una lista de lista, devuelve la lista de aquellas
+--listas que tienen mas de n elementos.
+lasDeLongitudMayorA n [] = []
+lasDeLongitudMayorA n (xs:xss) = if (length xs) > n
+                                  then xs : lasDeLongitudMayorA n xss
+                                  else lasDeLongitudMayorA n xss
+
+agregarAlFinal :: [a] -> a -> [a]
+--Dados una lista y un elemento, devuelve una lista con ese elemento agregado
+--al final de la lista.
+agregarAlFinal [] e = e : []
+agregarAlFinal (x:xs) e = x : agregarAlFinal xs e
+
+concatenar :: [a] -> [a] -> [a]
+--Dadas dos listas devuelve la lista con todos los elementos de la primera
+--lista y todos los elementos de la segunda a continuación.
+concatenar [] ys = ys
+concatenar (x:xs) ys = x : concatenar xs ys
+
+reversa :: [a] -> [a]
+--Dada una lista devuelve la lista con los mismos elementos de atrás para
+--adelante.
+reversa [] = []
+reversa (x:xs) = agregarAlFinal (reversa xs) x
+
+zipMaximos :: [Int] -> [Int] -> [Int]
+zipMaximos [] ys = ys
+zipMaximos xs [] = xs
+zipMaximos (x:xs) (y:ys) = if x > y
+                            then x : zipMaximos xs ys
+                            else y : zipMaximos xs ys
+
+elMinimo :: Ord a => [a] -> a
+--dada una lista devuelve el minimo
+--precon: Debe haber elemento en la lista dada
+elMinimo (x:xs) = elMinimoEntreYElementos x xs
+
+elMinimoEntreYElementos :: Ord a => a -> [a] -> a
+elMinimoEntreYElementos x [] = x
+elMinimoEntreYElementos x (y:ys) = if x < y
+                            then elMinimoEntreYElementos x ys
+                            else elMinimoEntreYElementos y ys
+
+--2.Recursión sobre números
 

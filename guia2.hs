@@ -100,3 +100,46 @@ elMinimoEntreYElementos x (y:ys) = if x < y
 
 --2.Recursión sobre números
 
+factorial :: Int -> Int
+--Dado un número n se devuelve la multiplicación de este número
+--y todos sus anteriores hasta llegar a 0. Si n es 0 devuelve 1.
+--precon: n no debe ser negativo.
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+
+cuentaRegresiva :: Int -> [Int]
+--Dado un número n devuelve una lista cuyos elementos son los números
+--comprendidos entre n y 1. Si el número es inferior a 1, devuelve la lista
+--vacía.
+cuentaRegresiva n = if n < 1
+                    --caso base
+                    then []
+                    --caso recursivo
+                    else n : cuentaRegresiva (n-1)
+
+repetir :: Int -> a -> [a]
+--dado un número n y un elemento e devuelve una lista en la que el elemento
+--e se repite n veces.
+--precon: n no es negativo.
+repetir 0 e = e : []
+repetir n e = e : repetir (n-1) e
+
+losPrimeros :: Int -> [a] -> [a]
+--Dados un número n y una lista xs, devuelve una lista con los n primeros
+--elementos de xs. Si la lista es vacía, devuelve una lista vacía.
+--precon: n no es negativo.
+losPrimeros 0 xs = []
+losPrimeros n [] = []
+losPrimeros n (x:xs) = x : losPrimeros n xs
+
+sinLosPrimeros :: Int -> [a] -> [a]
+--dados un número n y una lista xs, devuelve una lista sin los primeros n
+--elementos de lista recibida. Si n es cero, deuvelve la lista completa.
+--precon: n no es negativo.
+sinLosPrimeros 0 xs = []
+sinLosPrimeros n [] = []
+sinLosPrimeros n (x:xs) = sinLosPrimeros (n-1) xs
+
+--3. Registros
+
+

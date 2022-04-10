@@ -332,6 +332,7 @@ cantQueTrabajaEn' pr (r:rs) = if (estaEnAlgunProyecto r pr)
 				then 1 + cantQueTrabajaEn' pr rs
 				else cantQueTrabajaEn' pr rs
 
+{-
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
 asignadosPorProyecto (ConsEmpresa rs) = asignadosPorProyecto' rs
 
@@ -351,6 +352,23 @@ sumarUnoATupla pr [] = []
 sumarUnoATupla pr (t:ts) = if (esMismoProyecto pr (fst t))
 				then (sumarUnoA t) : sumarUnoATupla pr ts
 				else t : sumarUnoATupla pr ts
+
+sumarUnoA :: (Proyecto, Int) -> (Proyecto, Int)
+sumarUnoA (p,n) = (p, n+1)
+-}
+
+asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto (ConsEmpresa rs) = asignadosPorProyecto' rs
+
+asignadosPorProyecto' :: [Rol] -> [(Proyecto, Int)]
+asignadosPorProyecto' [] = []
+asignadosPorProyecto' (r:rs) = agregarOSumarTupla r (asignadosPorProyecto' rs)
+
+agregarOSumarTupla :: Rol -> [(Proyecto, Int)] -> [(Proyecto, Int)]
+agregarOSumarTupla r [] = [(proyectoDe r,1)]
+agregarOSumarTupla r (t:ts) = if (esMismoProyecto (proyectoDe r) (fst t))
+                                then (sumarUnoA t) : ts
+                                else t : agregarOSumarTupla r ts
 
 sumarUnoA :: (Proyecto, Int) -> (Proyecto, Int)
 sumarUnoA (p,n) = (p, n+1)

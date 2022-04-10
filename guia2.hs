@@ -142,22 +142,30 @@ sinLosPrimeros n (x:xs) = sinLosPrimeros (n-1) xs
 
 --3. Registros
 
+--De la guia1
+-------------
+data Persona = P String Int
+
+edad :: Persona -> Int
+edad (P _ e) = e
+-------------
+
 mayoresA :: Int -> [Persona] -> [Persona]
 mayoresA n [] = []
-mayoresA n [p:ps] = if (esMayorA p n)
+mayoresA n (p:ps) = if (esMayorA p n)
 			then p : mayoresA n ps
 			else mayoresA n ps
 
-esMayor :: Persona -> Int -> Bool
-esMayor (P _ e) n = e > n
+esMayorA :: Persona -> Int -> Bool
+esMayorA p n = (edad p) > n
 
 --Precon: La lista al menos posee una persona
 promedioEdad :: [Persona] -> Int
-promedioEdad ps n = sumarTodas(todasLasEdades ps) / length ps
+promedioEdad ps = div (sumarEdades ps) (length ps)
 
-todasLasEdades :: [Personas] -> [Int]
-todasLasEdades [] = []
-todasLasEdades (p:ps) = (edad p) : todasLasEdades ps
+sumarEdades :: [Persona] -> Int
+sumarEdades [] = 0
+sumarEdades (p:ps) = (edad p) + sumarEdades ps
 
 --Precon: Hay al menos una persona
 elMasViejo :: [Persona] -> Persona
@@ -166,9 +174,33 @@ elMasViejo (p:ps) = if (esMasViejoQue p (elMasViejo ps) || null ps)
 		then p
 		else elMasViejo ps
 
-esMasViejoQUe :: Persona -> Persona
+esMasViejoQue :: Persona -> Persona -> Bool
 esMasViejoQue (P _ e1) (P _ e2) = e1 > e2
 
+--De la guia1
+-------------
+data TipoDePokemon = Agua | Fuego | Planta
+data Pokemon = Pok TipoDePokemon Int
+data Entrenador = ConsEntrenador String [Pokemon]
+
+elementoSuperaA :: TipoDePokemon -> TipoDePokemon -> Bool
+elementoSuperaA Agua Fuego = True
+elementoSuperaA Fuego Planta = True
+elementoSuperaA Planta Agua = True
+elementoSuperaA _ _ = False
+
+superaA :: Pokemon -> Pokemon -> Bool
+superaA (Pok t1 _) (Pok t2 _) = elementoSuperaA t1 t2
+
+esTipo :: TipoDePokemon -> Pokemon -> Bool
+esTipo tipo (Pok t _) = mismoTipo tipo t
+
+mismoTipo :: TipoDePokemon -> TipoDePokemon -> Bool
+mismoTipo Fuego Fuego = True
+mismoTipo Agua Agua = True
+mismoTipo Planta Planta = True
+mismoTipo _ _ = False
+-------------
 cantPokemon :: Entrenador -> Int
 cantPokemon (ConsEntrenador _ poks) = length poks
 
@@ -182,7 +214,7 @@ cantPokemonDe' t (pok:poks) = if (esTipo t pok)
 				else cantPokemonDe' t poks
 
 losQueGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
-losQueGanan t (E _ poks1) (E _ poks2) = cantidadQueLesGanan (losDelTipo t poks1) poks2
+losQueGanan t (ConsEntrenador _ poks1) (ConsEntrenador _ poks2) = cantidadQueLesGanan (losDelTipo t poks1) poks2
 
 losDelTipo :: TipoDePokemon -> [Pokemon] -> [Pokemon]
 losDelTipo t [] = []
@@ -205,7 +237,7 @@ esMaestroPokemon (ConsEntrenador _ poks) = hayUnPokemonDeCadaTipo poks
 
 hayUnPokemonDeCadaTipo :: [Pokemon] -> Bool
 hayUnPokemonDeCadaTipo [] = False
-hayUnPokemonDeCadaTipo poks = hayPokemonDe Fuego pok && hayPokemonDe Agua pok && hayPokemonDe Planta pok
+hayUnPokemonDeCadaTipo pok = hayPokemonDe Fuego pok && hayPokemonDe Agua pok && hayPokemonDe Planta pok
 
 hayPokemonDe :: TipoDePokemon -> [Pokemon] -> Bool
 hayPokemonDe t [] = False
@@ -229,11 +261,11 @@ proyectoDe (Managment _ p) = p
 
 sinProyectosRepetidos :: [Proyecto] -> [Proyecto]
 sinProyectosRepetidos [] = []
-sinProyectosRepetidos (p:ps) = if (estaProyecto p sinProyectosRepetidos ps)
+sinProyectosRepetidos (p:ps) = if (estaProyecto p (sinProyectosRepetidos ps))
 				then sinProyectosRepetidos ps
 				else p : sinProyectosRepetidos ps
 
-estaProyecto :: Proyecto -> [Proyectos]
+estaProyecto :: Proyecto -> [Proyecto] -> Bool
 estaProyecto pr [] = False
 estaProyecto pr (p:ps) = (esMismoProyecto pr p) || (estaProyecto pr ps)
 
@@ -257,9 +289,9 @@ esSenior :: Seniority -> Bool
 esSenior Senior = True
 esSenior _ = False
 
-estaEnAlgunProyecto :: Rol -> [Proyectos]
+estaEnAlgunProyecto :: Rol -> [Proyecto] -> Bool
 estaEnAlgunProyecto r [] = False
-estaEnAlgunProyecto r (p:ps) = estaProyecto (proyectoDe r) p || estaEnAlgunProyecto r p
+estaEnAlgunProyecto r (p:ps) = esMismoProyecto (proyectoDe r) p || estaEnAlgunProyecto r ps
 
 cantQueTrabajaEn :: [Proyecto] -> Empresa -> Int
 cantQueTrabajaEn pr (ConsEmpresa rs) = cantQueTrabajaEn' pr rs
@@ -275,9 +307,9 @@ asignadosPorProyecto (ConsEmpresa rs) = asignadosPorProyecto' rs
 
 asignadosPorProyecto' :: [Rol] -> [(Proyecto, Int)]
 asignadosPorProyecto' []     = []
-asignadosPorProyecto' (r:rs) = if (estaProyectoEnTupla (proyectoDe r) (asignadosPorProyecto rs))
-				then sumarUnoATupla (proyectoDe r) (asignadosPorProyecto rs)
-				else (proyectoDe r, 1) : asignadosPorProyecto rs
+asignadosPorProyecto' (r:rs) = if (estaProyectoEnTupla (proyectoDe r) (asignadosPorProyecto' rs))
+				then sumarUnoATupla (proyectoDe r) (asignadosPorProyecto' rs)
+				else (proyectoDe r, 1) : asignadosPorProyecto' rs
 
 estaProyectoEnTupla :: Proyecto -> [(Proyecto, Int)] -> Bool
 estaProyectoEnTupla pr [] = False
@@ -287,7 +319,7 @@ sumarUnoATupla :: Proyecto -> [(Proyecto, Int)] -> [(Proyecto, Int)]
 --precon: El proyecto dado debe estar en alguna de las tuplas.
 sumarUnoATupla pr [] = []
 sumarUnoATupla pr (t:ts) = if (esMismoProyecto pr (fst t))
-				then (sumarUnoA t) : sumarUnoATupla ts
+				then (sumarUnoA t) : sumarUnoATupla pr ts
 				else t : sumarUnoATupla pr ts
 
 sumarUnoA :: (Proyecto, Int) -> (Proyecto, Int)

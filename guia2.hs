@@ -149,6 +149,11 @@ data Persona = P String Int
 edad :: Persona -> Int
 edad (P _ e) = e
 -------------
+--Para ejecutar
+pepe = P "Jose" 38
+miguel = P "Miguel" 20
+ana = P "Ana" 40
+------------
 
 mayoresA :: Int -> [Persona] -> [Persona]
 mayoresA n [] = []
@@ -170,7 +175,7 @@ sumarEdades (p:ps) = (edad p) + sumarEdades ps
 --Precon: Hay al menos una persona
 elMasViejo :: [Persona] -> Persona
 elMasViejo [] = error("No hay personas")
-elMasViejo (p:ps) = if (esMasViejoQue p (elMasViejo ps) || null ps)
+elMasViejo (p:ps) = if (null ps || esMasViejoQue p (elMasViejo ps))
 		then p
 		else elMasViejo ps
 
@@ -200,6 +205,15 @@ mismoTipo Fuego Fuego = True
 mismoTipo Agua Agua = True
 mismoTipo Planta Planta = True
 mismoTipo _ _ = False
+-------------
+--Para ejecutar
+charmander = Pok Fuego 200
+squirtle = Pok Agua 180
+bulbasur = Pok Planta 200
+charizard = Pok Fuego 1000
+
+ash = ConsEntrenador "Ash ketchup" [charizard, squirtle, bulbasur]
+mistic = ConsEntrenador "mistic" [squirtle, squirtle]
 -------------
 cantPokemon :: Entrenador -> Int
 cantPokemon (ConsEntrenador _ poks) = length poks
@@ -247,6 +261,22 @@ data Seniority = Junior | SemiSenior | Senior
 data Proyecto = ConsProyecto String
 data Rol = Developer Seniority Proyecto | Managment Seniority Proyecto
 data Empresa = ConsEmpresa [Rol]
+
+-------------
+--Para ejecutar
+resolverBug = ConsProyecto "Bug 202"
+nuevaInterfaz = ConsProyecto "Interfaz nueva"
+baseDeDato = ConsProyecto "Solucionar backend"
+test = ConsProyecto "Test nueva funcionalidad"
+
+empleadoA = Developer Junior nuevaInterfaz
+empleadoB = Managment Senior nuevaInterfaz
+empleadoC = Developer SemiSenior baseDeDato
+empleadoD = Developer Senior test
+empleadoE = Developer Senior resolverBug
+
+unaEmpresa = ConsEmpresa [empleadoA, empleadoD, empleadoC, empleadoB, empleadoE]
+-------------
 
 proyectos :: Empresa -> [Proyecto]
 proyectos (ConsEmpresa rs) = sinProyectosRepetidos (proyectos' rs)

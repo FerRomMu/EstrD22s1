@@ -32,7 +32,7 @@ disyuncion (x:xs) = x || disyuncion xs
 aplanar :: [[a]] -> [a]
 --Dada una lista de listas, devuelve una única lista con todos sus elementos
 aplanar [] = []
-aplanar (x:xs) = x ++ aplanar xs
+aplanar (xs:xss) = xs ++ aplanar xss
 
 pertenece :: Eq a => a -> [a] -> Bool
 --Dados un elemento e y una lista xs devuelve True si existe un elemento en
@@ -87,6 +87,7 @@ zipMaximos (x:xs) (y:ys) = if x > y
                             then x : zipMaximos xs ys
                             else y : zipMaximos xs ys
 
+{-
 elMinimo :: Ord a => [a] -> a
 --dada una lista devuelve el minimo
 --precon: Debe haber elemento en la lista dada
@@ -97,6 +98,15 @@ elMinimoEntreYElementos x [] = x
 elMinimoEntreYElementos x (y:ys) = if x < y
                             then elMinimoEntreYElementos x ys
                             else elMinimoEntreYElementos y ys
+-}
+
+elMinimo :: Ord a => [a] -> a
+--dada una lista devuelve el minimo
+--precon: Debe haber elemento en la lista dada
+elMinimo (x:[]) = x
+elMinimo (x:xs) = let r = elMinimo xs
+                  in 
+                    if x < r then x else r
 
 --2.Recursión sobre números
 
@@ -219,13 +229,13 @@ cantPokemon :: Entrenador -> Int
 cantPokemon (ConsEntrenador _ poks) = length poks
 
 cantPokemonDe :: TipoDePokemon -> Entrenador -> Int
-cantPokemonDe t (ConsEntrenador _ ps) = cantPokemonDe' t ps
+cantPokemonDe t (ConsEntrenador _ ps) = cantPokemonDeTipo t ps
 
-cantPokemonDe' :: TipoDePokemon -> [Pokemon] -> Int
-cantPokemonDe' t [] = 0
-cantPokemonDe' t (pok:poks) = if (esTipo t pok)
-				then 1 + cantPokemonDe' t poks
-				else cantPokemonDe' t poks
+cantPokemonDeTipo :: TipoDePokemon -> [Pokemon] -> Int
+cantPokemonDeTipo t [] = 0
+cantPokemonDeTipo t (pok:poks) = if (esTipo t pok)
+				then 1 + cantPokemonDeTipo t poks
+				else cantPokemonDeTipo t poks
 
 losQueGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 losQueGanan t (ConsEntrenador _ poks1) (ConsEntrenador _ poks2) = cantidadQueLesGanan (losDelTipo t poks1) poks2
@@ -279,11 +289,11 @@ unaEmpresa = ConsEmpresa [empleadoA, empleadoD, empleadoC, empleadoB, empleadoE]
 -------------
 
 proyectos :: Empresa -> [Proyecto]
-proyectos (ConsEmpresa rs) = sinProyectosRepetidos (proyectos' rs)
+proyectos (ConsEmpresa rs) = sinProyectosRepetidos (losProyectosDe rs)
 
-proyectos' :: [Rol] -> [Proyecto]
-proyectos' [] = []
-proyectos' (r:rs) = (proyectoDe r) : proyectos' rs
+losProyectosDe :: [Rol] -> [Proyecto]
+losProyectosDe [] = []
+losProyectosDe (r:rs) = (proyectoDe r) : losProyectosDe rs
 
 proyectoDe :: Rol -> Proyecto
 proyectoDe (Developer _ p) = p
@@ -291,9 +301,11 @@ proyectoDe (Managment _ p) = p
 
 sinProyectosRepetidos :: [Proyecto] -> [Proyecto]
 sinProyectosRepetidos [] = []
-sinProyectosRepetidos (p:ps) = if (estaProyecto p (sinProyectosRepetidos ps))
-				then sinProyectosRepetidos ps
-				else p : sinProyectosRepetidos ps
+sinProyectosRepetidos (p:ps) = let r = sinProyectosRepetidos ps
+                               in
+                                if (estaProyecto p r)
+				  then r
+				  else p : r
 
 estaProyecto :: Proyecto -> [Proyecto] -> Bool
 estaProyecto pr [] = False
@@ -303,13 +315,13 @@ esMismoProyecto :: Proyecto -> Proyecto -> Bool
 esMismoProyecto (ConsProyecto p1) (ConsProyecto p2) = p1 == p2
 
 losDevSenior :: Empresa -> [Proyecto] -> Int
-losDevSenior (ConsEmpresa rs) pr = losDevSenior' rs pr
+losDevSenior (ConsEmpresa rs) pr = losEmpleadosDevSenior rs pr
 
-losDevSenior' :: [Rol] -> [Proyecto] -> Int
-losDevSenior' [] pr = 0
-losDevSenior' (r:rs) pr = if (esDevSenior r && estaEnAlgunProyecto r pr)
-				then 1 + losDevSenior' rs pr
-				else losDevSenior' rs pr
+losEmpleadosDevSenior :: [Rol] -> [Proyecto] -> Int
+losEmpleadosDevSenior [] pr = 0
+losEmpleadosDevSenior (r:rs) pr = if (esDevSenior r && estaEnAlgunProyecto r pr)
+				then 1 + losEmpleadosDevSenior rs pr
+				else losEmpleadosDevSenior rs pr
 
 esDevSenior :: Rol -> Bool
 esDevSenior (Developer s _) = esSenior s
@@ -324,13 +336,13 @@ estaEnAlgunProyecto r [] = False
 estaEnAlgunProyecto r (p:ps) = esMismoProyecto (proyectoDe r) p || estaEnAlgunProyecto r ps
 
 cantQueTrabajaEn :: [Proyecto] -> Empresa -> Int
-cantQueTrabajaEn pr (ConsEmpresa rs) = cantQueTrabajaEn' pr rs
+cantQueTrabajaEn pr (ConsEmpresa rs) = cantEmpleadosQueTrabajaEn pr rs
 
-cantQueTrabajaEn' :: [Proyecto] -> [Rol] -> Int
-cantQueTrabajaEn' pr [] = 0
-cantQueTrabajaEn' pr (r:rs) = if (estaEnAlgunProyecto r pr)
-				then 1 + cantQueTrabajaEn' pr rs
-				else cantQueTrabajaEn' pr rs
+cantEmpleadosQueTrabajaEn :: [Proyecto] -> [Rol] -> Int
+cantEmpleadosQueTrabajaEn pr [] = 0
+cantEmpleadosQueTrabajaEn pr (r:rs) = if (estaEnAlgunProyecto r pr)
+				then 1 + cantEmpleadosQueTrabajaEn pr rs
+				else cantEmpleadosQueTrabajaEn pr rs
 
 {-
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
@@ -355,14 +367,14 @@ sumarUnoATupla pr (t:ts) = if (esMismoProyecto pr (fst t))
 
 sumarUnoA :: (Proyecto, Int) -> (Proyecto, Int)
 sumarUnoA (p,n) = (p, n+1)
--}
+--}
 
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto (ConsEmpresa rs) = asignadosPorProyecto' rs
+asignadosPorProyecto (ConsEmpresa rs) = rolesAsignadosPorProyecto rs
 
-asignadosPorProyecto' :: [Rol] -> [(Proyecto, Int)]
-asignadosPorProyecto' [] = []
-asignadosPorProyecto' (r:rs) = agregarOSumarTupla r (asignadosPorProyecto' rs)
+rolesAsignadosPorProyecto :: [Rol] -> [(Proyecto, Int)]
+rolesAsignadosPorProyecto [] = []
+rolesAsignadosPorProyecto (r:rs) = agregarOSumarTupla r (rolesAsignadosPorProyecto rs)
 
 agregarOSumarTupla :: Rol -> [(Proyecto, Int)] -> [(Proyecto, Int)]
 agregarOSumarTupla r [] = [(proyectoDe r,1)]

@@ -18,18 +18,18 @@ esMismoColor _ _ = False
 
 poner :: Color -> Celda -> Celda
 --Dado un color y una celda, agrega una bolita de dicho color a la celda.
-poner co ce = (Bolita co ce)
+poner co ce = Bolita co ce
 
 sacar :: Color -> Celda -> Celda
 --dado un color y una celda, quita una bolita de dicho color de la celda.
 sacar co CeldaVacia = CeldaVacia
 sacar co (Bolita co2 ce) = if(esMismoColor co co2)
-                            then ce else (Bolita co2 (sacar co ce))
+                            then ce else Bolita co2 (sacar co ce)
 
 ponerN :: Int -> Color -> Celda -> Celda
 --dado un número n, un color c, y una celda, agrega n bolitas de color c a la celda.
 ponerN 0 co ce = ce
-ponerN n co ce = (Bolita co (ponerN (n-1) co ce))
+ponerN n co ce = Bolita co (ponerN (n-1) co ce)
 
 ----Camino hacia el tesoro
 
@@ -38,7 +38,7 @@ data Camino = Fin | Cofre [Objeto] Camino | Nada Camino
 
 unCamino = Nada (Cofre [Cacharro,Cacharro] (Nada (Cofre [Tesoro] Fin)))
 unCamino2 = Fin
-unCamino3 = Nada (Nada (Cofre [Tesoro] (Nada(Cofre [Tesoro] Fin))))
+unCamino3 = Nada (Nada (Cofre [Tesoro, Cacharro, Tesoro, Tesoro, Tesoro] (Nada(Cofre [Tesoro] Fin))))
 
 hayTesoro :: Camino -> Bool
 --Indica si hay un cofre con un tesoro en el camino.
@@ -62,21 +62,29 @@ pasosHastaTesoro (Cofre xs c) = if(hayTesoroEntre xs)
                                   then 0 else 1 + pasosHastaTesoro c
 pasosHastaTesoro (Nada c) = 1 + pasosHastaTesoro c
 
-hayTesoroEn :: Int -> Camino -> Bool
+{-
+hayTesoroEnFeo :: Int -> Camino -> Bool
 --Indica si hay un tesoro en una cierta cantidad de pasos.
-hayTesoroEn 0 (Cofre xs c) = hayTesoroEntre xs
-hayTesoroEn 0 _ = False
-hayTesoroEn n Fin = False
-hayTesoroEn n (Cofre xs c) = hayTesoroEn (n-1) c
-hayTesoroEn n (Nada c) = hayTesoroEn (n-1) c
+hayTesoroEnFeo 0 (Cofre xs c) = hayTesoroEntre xs
+hayTesoroEnFeo 0 _ = False
+hayTesoroEnFeo n Fin = False
+hayTesoroEnFeo n (Cofre xs c) = hayTesoroEnFeo (n-1) c
+hayTesoroEnFeo n (Nada c) = hayTesoroEnFeo (n-1) c
+-}
+
+hayTesoroEn :: Int -> Camino -> Bool
+hayTesoroEn n c = hayTesoroAca(avanzarNPasos n c)
+
+hayTesoroAca :: Camino -> Bool
+hayTesoroAca (Cofre xs c) = hayTesoroEntre xs
+hayTesoroAca _ = False
 
 alMenosNTesoros :: Int -> Camino -> Bool
 --Indica si hay al menos "n" tesoros en el camino.
-alMenosNTesoros n Fin = n==0
-alMenosNTesoros n (Cofre xs c) = if(hayTesoroEntre xs)
-                                  then n==1 || alMenosNTesoros (n-1) c
-                                  else n==0 || alMenosNTesoros n c
-alMenosNTesoros n (Nada c) = n==0 || alMenosNTesoros n c
+alMenosNTesoros 0 _ = True
+alMenosNTesoros n Fin = False
+alMenosNTesoros n (Cofre xs c) = alMenosNTesoros (max 0 (n - (cantTesoros xs))) c
+alMenosNTesoros n (Nada c) = alMenosNTesoros n c
 
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 --Dado un rango de pasos, indica la cantidad de tesoros que hay
@@ -90,11 +98,23 @@ avanzarNPasos n (Cofre _ c) = avanzarNPasos (n-1) c
 avanzarNPasos n (Nada c) = avanzarNPasos (n-1) c
 
 cantTesorosHasta :: Camino -> Int -> Int
-cantTesorosHasta (Cofre xs _) 0 = unoSi(hayTesoroEntre xs)
-cantTesorosHasta _ 0 = 0
-cantTesorosHasta Fin n = 0
-cantTesorosHasta (Cofre xs c) n = unoSi(hayTesoroEntre xs) + cantTesorosHasta c (n-1)
-cantTesorosHasta (Nada c) n = cantTesorosHasta c (n-1)
+cantTesorosHasta c 0 = cantTesorosSiHay c
+cantTesorosHasta Fin n = 0 --caso especial borde
+cantTesorosHasta c n = cantTesorosSiHay c + cantTesorosHasta (sigCamino c) (n-1)
+
+sigCamino :: Camino -> Camino
+--PARCIAL
+--Precon: El camino dado no es Fin.
+sigCamino (Cofre _ c) = c
+sigCamino (Nada c) = c
+
+cantTesorosSiHay :: Camino -> Int
+cantTesorosSiHay (Cofre xs c) = cantTesoros xs
+cantTesorosSiHay _ = 0
+
+cantTesoros :: [Objeto] -> Int
+cantTesoros [] = 0
+cantTesoros (x:xs) = unoSi(esTesoro x) + cantTesoros xs
 
 --2 Tipos arboreos
 data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
@@ -164,7 +184,7 @@ sizeT (NodeT _ t1 t2) = 1 + sizeT t1 + sizeT t2
 
 mapDobleT :: Tree Int -> Tree Int
 mapDobleT EmptyT = EmptyT
-mapDobleT (NodeT n t1 t2) = (NodeT (n*2) (mapDobleT t1) (mapDobleT t2))
+mapDobleT (NodeT n t1 t2) = NodeT (n*2) (mapDobleT t1) (mapDobleT t2)
 
 perteneceT :: Eq a => a -> Tree a -> Bool
 perteneceT x EmptyT = False
@@ -177,7 +197,8 @@ aparicionesT x (NodeT y t1 t2) = unoSi(x==y) + aparicionesT x t1 + aparicionesT 
 leaves :: Tree a -> [a]
 --Dado un arbol devuelve los elementos que se encuentran en sus hojas
 leaves EmptyT = []
-leaves (NodeT x t1 t2) = x : (leaves t1 ++ leaves t2)
+leaves (NodeT x EmptyT EmptyT) = [x]
+leaves (NodeT x t1 t2) = leaves t1 ++ leaves t2
 
 heightT :: Tree a -> Int
 --dado un arbol devuelve su altura
@@ -189,7 +210,7 @@ elMayor n m = if(n > m) then n else m
 
 mirrorT :: Tree a -> Tree a
 mirrorT EmptyT = EmptyT
-mirrorT (NodeT x t1 t2) = (NodeT x (mirrorT t2) (mirrorT t1))
+mirrorT (NodeT x t1 t2) = NodeT x (mirrorT t2) (mirrorT t1)
 
 toList :: Tree a -> [a]
 toList EmptyT = []
@@ -201,24 +222,30 @@ levelN 0 (NodeT x t1 t2) = [x]
 levelN _ EmptyT = []
 levelN n (NodeT x t1 t2) = levelN (n-1) t1 ++ levelN (n-1) t2
 
+{-Sigue sin funcionar con la correción de clases
+y ademas me falta re implementar para no sobre recorrer el arbol
+
 listPerLevel :: Tree a -> [[a]]
 --Dado un arbol devuelve una lista de listas en la que cada elemento repre
 --senta un nivel de dicho arbol
 listPerLevel EmptyT = []
-listPerLevel t = [elementoDe t] : (cadaLevel (heightT t-1) t)
----                                                    ^Preguntar xq
+listPerLevel t = (cadaLevel (heightT t) t)
+
 cadaLevel :: Int -> Tree a -> [[a]]
 --Precon: Hay tantos niveles como el dado.
-cadaLevel 0 t = []
+cadaLevel 0 EmptyT = []
+cadaLevel 0 t = [levelN 0 t]
 cadaLevel n t = (levelN n t) : cadaLevel (n-1) t
+-}
 
+--en realidad se le llama root
 elementoDe :: Tree a -> a
 --precon: el arbol dado no es emptyT.
 elementoDe (NodeT x t1 t2) = x
 
-ramaMasLarga :: Tree a -> [a]
-ramaMasLarga EmptyT = []
-ramaMasLarga (NodeT x t1 t2) = x : listaMasLarga (ramaMasLarga t1) (ramaMasLarga t2)
+ramaMasLargaMenosEficiente :: Tree a -> [a]
+ramaMasLargaMenosEficiente EmptyT = []
+ramaMasLargaMenosEficiente (NodeT x t1 t2) = x : listaMasLarga (ramaMasLarga t1) (ramaMasLarga t2)
 
 listaMasLarga :: [a] -> [a] -> [a]
 listaMasLarga x y = if (length x > length y) then x else y
@@ -232,3 +259,58 @@ agregarEnTodos :: a -> [[a]] -> [[a]]
 agregarEnTodos x [] = [[x]]
 agregarEnTodos x (ys:yss) = (x:ys) : agregarEnTodos x yss
 
+--Expresiones aritmeticas
+
+data ExpA = Valor Int
+	| Sum ExpA ExpA
+        | Prod ExpA ExpA
+        | Neg ExpA
+
+exp1 = Sum (Valor 0) (Prod (Neg (Neg (Valor 4))) (Valor 3))
+exp2 = Neg (Valor 20)
+exp3 = Prod (Neg (Valor 3)) (Valor 0)
+
+eval :: ExpA -> Int
+--Dada una expresión aritmetica devuelve el resultado de evaluarla-
+eval (Valor x) = x
+eval (Sum x y) = (eval x) + (eval y)
+eval (Prod x y) =  (eval x) * (eval y)
+eval (Neg x) = -(eval x)
+
+simplificar :: ExpA -> ExpA
+--Dada una expresión aritmetica, la simplifica según los siguientes
+--criterios (descritos utilizando notación matemática conencional)
+--simplificar 
+simplificar (Valor x) = Valor x 
+simplificar (Sum x y) = simplificarSum (simplificar x) (simplificar y)
+simplificar (Prod x y) = simplificarProd (simplificar x) (simplificar y)
+simplificar (Neg x) = simplificarNeg (simplificar x)
+
+simplificarSum :: ExpA -> ExpA -> ExpA
+simplificarSum (Valor 0) e = e
+simplificarSum e (Valor 0) = e
+simplificarSum e1 e2 = Sum e1 e2
+
+simplificarProd :: ExpA -> ExpA -> ExpA
+simplificarProd (Valor 0) _ = Valor 0
+simplificarProd _ (Valor 0) = Valor 0
+simplificarProd e1 e2 = Prod e1 e2
+
+simplificarNeg :: ExpA -> ExpA
+simplificarNeg (Neg x) = x
+simplificarNeg x = Neg x
+
+---Intentando mejorar ramaMasLarga
+ramaMasLarga :: Tree a -> [a]
+ramaMasLarga t = snd(ramaMasLargaConL t)
+
+ramaMasLargaConL :: Tree a -> (Int, [a])
+ramaMasLargaConL EmptyT = (0, [])
+ramaMasLargaConL (NodeT x t1 t2) =
+      let 
+        (largo1,elementos1) = (ramaMasLargaConL t1)
+        (largo2,elementos2) = (ramaMasLargaConL t2)
+      in
+        if (largo1 > largo2) 
+          then (largo1+1, x : elementos1)
+          else (largo2+1, x : elementos2)

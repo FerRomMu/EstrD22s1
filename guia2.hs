@@ -99,7 +99,7 @@ elMinimoEntreYElementos x (y:ys) = if x < y
                             then elMinimoEntreYElementos x ys
                             else elMinimoEntreYElementos y ys
 -}
-
+{-
 elMinimo :: Ord a => [a] -> a
 --dada una lista devuelve el minimo
 --precon: Debe haber elemento en la lista dada
@@ -107,7 +107,12 @@ elMinimo (x:[]) = x
 elMinimo (x:xs) = let r = elMinimo xs
                   in 
                     if x < r then x else r
+-}
 
+--Modo miyagi
+elMinimo :: Ord a => [a] -> a
+elMinimo (x:[]) = x
+elMinimo (x:xs) = min x (elMinimo xs)
 --2.Recursión sobre números
 
 factorial :: Int -> Int

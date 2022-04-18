@@ -236,7 +236,17 @@ cadaLevel :: Int -> Tree a -> [[a]]
 cadaLevel 0 EmptyT = []
 cadaLevel 0 t = [levelN 0 t]
 cadaLevel n t = (levelN n t) : cadaLevel (n-1) t
+
 -}
+
+listPerLevel :: Tree a -> [[a]]
+listPerLevel EmptyT = []
+listPerLevel (NodeT x t1 t2) = [x] : levelConLevel (listPerLevel t1) (listPerLevel t2)
+
+levelConLevel :: [[a]] -> [[a]] -> [[a]]
+levelConLevel [] yss = yss
+levelConLevel xss [] = xss
+levelConLevel (xs:xss) (ys:yss) = (xs++ys) : levelConLevel xss yss
 
 --en realidad se le llama root
 elementoDe :: Tree a -> a
@@ -258,6 +268,30 @@ todosLosCaminos (NodeT x t1 t2) =
 agregarEnTodos :: a -> [[a]] -> [[a]]
 agregarEnTodos x [] = [[x]]
 agregarEnTodos x (ys:yss) = (x:ys) : agregarEnTodos x yss
+
+--Intento mejorar todosLosCaminos de modo tal que me de un camino
+--Por cada emptyT del arbol (La versión corregida da 1 camino por cada
+--nodo. emptyT y otras combinaciones de caminos mas cortos)
+--Esta versión tiene mas casos por ser bordes e intentar frenar
+--el agregarEnTodos que generaba listas con la raiz cuando no debe.
+todosLosCaminos2 :: Tree a -> [[a]]
+todosLosCaminos2 EmptyT = []
+--1.Aclaracion necesaria
+todosLosCaminos2 (NodeT x EmptyT EmptyT) = [[x]]
+todosLosCaminos2 (NodeT x EmptyT t2) = 
+    [[x]] ++ (agregarEnTodos2 x (todosLosCaminos2 t2))
+todosLosCaminos2 (NodeT x t1 EmptyT) = 
+    (agregarEnTodos2 x (todosLosCaminos2 t1)) ++ [[x]]
+todosLosCaminos2 (NodeT x t1 t2) = 
+    (agregarEnTodos2 x (todosLosCaminos2 t1)) ++ (agregarEnTodos2 x (todosLosCaminos2 t2))
+--1: El caso emptyT emptyT es un caso especial que agregué post correción
+--ya que si no se agregaban caminos de mas en agregarEnTodos (por cada nivel
+--se agregaba la raiz)
+
+agregarEnTodos2 :: a -> [[a]] -> [[a]]
+agregarEnTodos2 x [] = []
+agregarEnTodos2 x (ys:yss) = (x:ys) : agregarEnTodos2 x yss
+
 
 --Expresiones aritmeticas
 

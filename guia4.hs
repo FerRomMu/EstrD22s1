@@ -66,6 +66,37 @@ map = Bifurcacion (Cofre [Chatarra])
           (Bifurcacion (Cofre [Chatarra, Tesoro, Chatarra]) (Fin (Cofre [])) (Fin (Cofre [])))
         )
         (Fin (Cofre []))
+
+map2 = Bifurcacion (Cofre [])
+        (Bifurcacion(Cofre [])
+          (Bifurcacion(Cofre [])
+            (Fin (Cofre []))
+            (Bifurcacion (Cofre [Chatarra, Tesoro])
+              (Fin (Cofre [Chatarra]))
+              (Fin (Cofre [Tesoro, Tesoro, Chatarra, Tesoro]))
+            )
+          )
+          (Fin (Cofre [Chatarra]))
+        )
+        (Bifurcacion(Cofre [Chatarra, Chatarra, Chatarra])
+          (Fin (Cofre[]))
+          (Bifurcacion (Cofre [])
+            (Fin (Cofre[]))
+            (Bifurcacion (Cofre [Chatarra, Tesoro, Chatarra])
+              (Bifurcacion (Cofre[])
+                (Fin (Cofre[]))
+                (Bifurcacion (Cofre[])
+                  (Fin (Cofre[]))
+                  (Fin (Cofre[]))
+                )
+              )
+              (Fin (Cofre[]))
+            )
+          )
+        )
+          
+map3 = Fin(Cofre [Chatarra, Chatarra])
+
 --1.
 hayTesoro :: Mapa -> Bool
 --Indica si hay un tesoro en alguna parte del mapa
@@ -134,13 +165,66 @@ caminoAlTesoroConDir :: Mapa -> (Bool, [Dir])
 caminoAlTesoroConDir (Fin c) = (hayTesoroEnCofre c, [])
 caminoAlTesoroConDir (Bifurcacion c m1 m2) =
   let 
-    (bool1, dirs1) = caminoAlTesoroConDir m1
-    (bool2, dirs2) = caminoAlTesoroConDir m2
+    (hayTesoroPorIzq, dirs1) = caminoAlTesoroConDir m1
+    (hayTesoroPorDer, dirs2) = caminoAlTesoroConDir m2
   in
   --mira si ya alguna rama tiene el camino al tesoro
-    if (bool1)
-    then (bool1, Izq : dirs1)
-    else if (bool2)
-      then (bool2, Der : dirs2)
+    if (hayTesoroPorIzq)
+    then (hayTesoroPorIzq, Izq : dirs1)
+    else if (hayTesoroPorDer)
+      then (hayTesoroPorDer, Der : dirs2)
       --En caso negativo, se fija si este nodo tiene tesoro y genera la base.
       else (hayTesoroEnCofre c, [])
+      
+--4
+caminoDeLaRamaMasLarga :: Mapa -> [Dir]
+caminoDeLaRamaMasLarga m = snd(caminoMasLargoContando m)
+
+caminoMasLargoContando :: Mapa -> (Int, [Dir])
+caminoMasLargoContando (Fin c) = (1, [])
+caminoMasLargoContando (Bifurcacion c m1 m2) =
+	let
+	  (length1, dirs1) = caminoMasLargoContando m1
+	  (length2, dirs2) = caminoMasLargoContando m2
+	in
+	  if (length1 > length2)
+	    then (length1 + 1, Izq:dirs1)
+	    else (length2 + 1, Der:dirs2)
+
+--5
+tesorosPorNivel :: Mapa -> [[Objeto]]
+--Devuelve los tesoros separados por nivel en el arbol.
+tesorosPorNivel (Fin c) = tesorosEnCofre c : []
+tesorosPorNivel (Bifurcacion c m1 m2) =
+  (tesorosEnCofre c) : nivelConNivel (tesorosPorNivel m1) (tesorosPorNivel m2)
+
+tesorosEnCofre :: Cofre -> [Objeto]
+tesorosEnCofre (Cofre o) = tesorosEn o
+
+tesorosEn :: [Objeto] -> [Objeto]
+tesorosEn [] = []
+tesorosEn (o:os) = singularSi(esTesoro o) o ++ tesorosEn os
+
+singularSi :: Bool -> a -> [a]
+singularSi True x = [x]
+singularSi _ _ = []
+
+nivelConNivel :: [[a]] -> [[a]] -> [[a]]
+nivelConNivel [] ys = ys
+nivelConNivel xs [] = xs
+nivelConNivel (x:xs) (y:ys) = (x++y) : nivelConNivel xs ys
+
+--6
+todosLosCaminos :: Mapa -> [[Dir]]
+todosLosCaminos (Fin c) = []
+todosLosCaminos (Bifurcacion c m1 m2) =
+  agregarEnTodos Izq (todosLosCaminos m1) 
+  ++
+  agregarEnTodos Der (todosLosCaminos m2)
+
+agregarEnTodos :: a -> [[a]] -> [[a]]
+agregarEnTodos x [] = [x] : []
+--caso borde para evitar que siempre se agregue una lista con el elemento d
+--si hay elementos en xs corta en el último elemento, si no va al caso base.
+agregarEnTodos x [y] = (x:y) : []
+agregarEnTodos x (y:ys) = (x:y) : agregarEnTodos x ys

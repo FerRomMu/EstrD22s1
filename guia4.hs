@@ -383,3 +383,118 @@ sectoresDondeEsta t (NodeT s ti td) =
 
 esTripulanteEn :: Tripulante -> Sector -> Bool
 esTripulanteEn t (S _ _ ts) = elem t ts
+
+--7
+tripulantes :: Nave -> [Tripulante]
+tripulantes (N ts) = sinRepetidos(tripulantesEn ts)
+
+sinRepetidos :: Eq a => [a] -> [a]
+sinRepetidos [] = []
+sinRepetidos (x:xs) =
+  if(elem x xs)
+    then sinRepetidos xs
+    else x : sinRepetidos xs
+
+tripulantesEn :: Tree Sector -> [Tripulante]
+tripulantesEn EmptyT = []
+tripulantesEn (NodeT s t1 t2) =
+  (tripulantesEnSector s) ++ (tripulantesEn t1) ++ (tripulantesEn t2)
+
+tripulantesEnSector :: Sector -> [Tripulante]
+tripulantesEnSector (S _ _ t) = t
+
+--Manada de lobos
+
+type Presa = String --nombre de presa
+type Territorio = String --nombre de territorio
+type Nombre = String --nombre de lobo
+data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo
+          | Explorador Nombre [Territorio] Lobo Lobo
+          | Cria Nombre
+data Manada = M Lobo
+
+--1
+ma = M (Cazador "Alfa" ["Conejo","Conejo"]
+        (Explorador "Beta" ["Norte"]
+          (Cria "hija")
+          (Cria "otra")
+        )
+        (Cria "algo")
+        (Cria "bebe")
+      )
+
+ma2 = M (Cazador "Alfa" ["Conejo","Conejo", "Ciervo", "Ardilla", "Ardilla"]
+        (Explorador "Beta" ["Norte"]
+          (Cria "hija")
+          (Cria "otra")
+        )
+        (Cria "algo")
+        (Explorador "zeta" ["Norte","Sur"]
+          (Explorador "otro" ["Sur"]
+            (Cria "a")
+            (Cria "b")
+          )
+          (Cria "c")
+        )
+      )
+
+ma3 = M (Explorador "wolfy" []
+          (Cria "una")
+          (Cria "otra")
+        )
+--2
+buenaCaza :: Manada -> Bool
+--dada una manada, indica si la cant de alimento cazado es mayor a la cant
+--de cris
+buenaCaza (M ls) = cantidadCazada ls > cantidadCrias ls
+
+cantidadCazada :: Lobo -> Int
+cantidadCazada (Cria _) = 0
+cantidadCazada (Explorador _ _ l1 l2) =
+  cantidadCazada l1 + cantidadCazada l2
+cantidadCazada (Cazador _ p l1 l2 l3) =
+  length p + cantidadCazada l1 + cantidadCazada l2 + cantidadCazada l3
+
+cantidadCrias :: Lobo -> Int
+cantidadCrias (Cria _) = 1
+cantidadCrias (Explorador _ _ l1 l2) =
+  cantidadCrias l1 + cantidadCrias l2
+cantidadCrias (Cazador _ _ l1 l2 l3) =
+  cantidadCrias l1 + cantidadCrias l2 + cantidadCrias l3
+
+--3
+elAlfa :: Manada -> (Nombre, Int)
+elAlfa (M ls) = alfaEntre ls
+
+alfaEntre :: Lobo -> (Nombre, Int)
+alfaEntre (Cria n) = (n, 0)
+alfaEntre (Explorador n _ l1 l2) =
+    elQueMasCazo (n, 0)(elQueMasCazo(alfaEntre l1)(alfaEntre l2))
+alfaEntre (Cazador n c l1 l2 l3) =
+    elQueMasCazo (n, length c)
+                 (elQueMasCazo (alfaEntre l1)
+                               (elQueMasCazo (alfaEntre l2) (alfaEntre l3))
+                 )
+
+elQueMasCazo :: (Nombre, Int) -> (Nombre, Int) -> (Nombre, Int)
+elQueMasCazo (n,i) (n2,i2) =
+  if (i2 > i) then (n2, i2) else (n, i)
+
+--4
+losQueExploraron :: Territorio -> Manada -> [Nombre]
+--Dado un territorio y una manada, devuelve los nombres de los exploradores
+--que pasaron por dicho territorio
+losQueExploraron t (M ls) = lobosQueExploraron t ls
+
+lobosQueExploraron :: Territorio -> Lobo -> [Nombre]
+lobosQueExploraron t (Cria n) = []
+lobosQueExploraron t (Explorador n tl l1 l2) =
+  singularSi(elem t tl) n ++
+  lobosQueExploraron t l1 ++
+  lobosQueExploraron t l2
+lobosQueExploraron t (Cazador _ _ l1 l2 l3) =
+  lobosQueExploraron t l1 ++
+  lobosQueExploraron t l2 ++
+  lobosQueExploraron t l3
+
+

@@ -428,7 +428,15 @@ ma2 = M (Cazador "Alfa" ["Conejo","Conejo", "Ciervo", "Ardilla", "Ardilla"]
           (Cria "hija")
           (Cria "otra")
         )
-        (Cria "algo")
+        (Cazador "mengano" []
+          (Cazador "pepe" []
+            (Cria "a")
+            (Cria "b")
+            (Cria "c")
+          )
+          (Cria "d")
+          (Cria "e")
+        )
         (Explorador "zeta" ["Norte","Sur"]
           (Explorador "otro" ["Sur"]
             (Cria "a")
@@ -497,4 +505,51 @@ lobosQueExploraron t (Cazador _ _ l1 l2 l3) =
   lobosQueExploraron t l2 ++
   lobosQueExploraron t l3
 
+--5
+exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
+exploradoresPorTerritorio (M ls) =
+  cadaExploradorDe (sinRepetidos(todosLosTerritorios ls)) ls
 
+todosLosTerritorios :: Lobo -> [Territorio]
+todosLosTerritorios (Cria n) = []
+todosLosTerritorios (Explorador _ t l1 l2) =
+  t ++ (todosLosTerritorios l1) ++ (todosLosTerritorios l2)
+todosLosTerritorios (Cazador _ _ l1 l2 l3) =
+  todosLosTerritorios l1 ++
+  todosLosTerritorios l2 ++
+  todosLosTerritorios l3
+
+cadaExploradorDe :: [Territorio] -> Lobo -> [(Territorio, [Nombre])]
+cadaExploradorDe [] l = []
+cadaExploradorDe (x:xs) l = (x,lobosQueExploraron x l) : cadaExploradorDe xs l
+
+--6
+superioresDelCazador :: Nombre -> Manada -> [Nombre]
+superioresDelCazador n (M ls) = fst(losSuperioresA n ls)
+
+losSuperioresA :: Nombre -> Lobo -> ([Nombre], Bool)
+losSuperioresA n (Cria nl) = ([], False)
+losSuperioresA n (Explorador nl _ l1 l2) =
+  let
+    (n1, esSuperior1) = losSuperioresA n l1
+    (n2, esSuperior2) = losSuperioresA n l2
+  in
+    if(esSuperior1)
+      then (n1, esSuperior1)
+      else (n2, esSuperior2)
+losSuperioresA n (Cazador nl _ l1 l2 l3) =
+  let
+    (n1, esSuperior1) = losSuperioresA n l1
+    (n2, esSuperior2) = losSuperioresA n l2
+    (n3, esSuperior3) = losSuperioresA n l3
+  in
+    if(esSuperior1)
+      then (nl:n1, esSuperior1)
+      else if (esSuperior2)
+        then (nl:n2, esSuperior2)
+        else if (esSuperior3)
+          then (nl:n3, esSuperior3)
+          else ([], esElLobo n nl)
+
+esElLobo :: Nombre -> Nombre -> Bool
+esElLobo n1 n2 = n1 == n2

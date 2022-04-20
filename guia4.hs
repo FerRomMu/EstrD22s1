@@ -228,3 +228,158 @@ agregarEnTodos x [] = [x] : []
 --si hay elementos en xs corta en el último elemento, si no va al caso base.
 agregarEnTodos x [y] = (x:y) : []
 agregarEnTodos x (y:ys) = (x:y) : agregarEnTodos x ys
+
+--Nave Espacial
+
+data Componente = LanzaTorpedos | Motor Int | Almacen [Barril]
+data Barril = Comida | Oxigeno | Torpedo | Combustible
+
+data Sector = S SectorId [Componente] [Tripulante]
+type SectorId = String
+type Tripulante = String
+
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
+data Nave = N (Tree Sector)
+
+arma = LanzaTorpedos
+m1 = Motor 500
+m2 = Motor 143
+m3 = Motor 220
+al1 = Almacen [Comida, Comida, Combustible, Torpedo]
+al2 = Almacen [Oxigeno, Torpedo, Oxigeno]
+al3 = Almacen [Combustible, Comida, Comida, Combustible, Comida]
+
+s1 = S "Sector A" [arma, arma, m1, al2] ["Pepe","Jose","Josema"]
+s2 = S "Sector B" [al1,al3] ["Neo"]
+s3 = S "Sector C" [m2, arma, arma, al2] ["Neo"]
+s4 = S "Sector D" [] []
+s5 = S "Sector S" [m1,m2,m3,al1,al2,al3,arma] ["Capitan"]
+
+n1 = N (EmptyT)
+n2 = N (NodeT s1
+          EmptyT
+          (NodeT s4
+            EmptyT
+            EmptyT
+          )
+       )
+n3 = N (NodeT s5
+          (NodeT s4
+            EmptyT
+            (NodeT s3
+              EmptyT
+              EmptyT
+            )
+          )
+          (NodeT s2
+            EmptyT
+            (NodeT s1
+              EmptyT
+              EmptyT
+            )
+          )
+       )
+--1
+sectores :: Nave -> [SectorId]
+--Devuelve todos los sectores de la nave
+sectores (N ts) = losIdDeSectores ts
+
+losIdDeSectores :: Tree Sector -> [SectorId]
+losIdDeSectores EmptyT = []
+losIdDeSectores (NodeT s ti td) =
+  idDe s : (losIdDeSectores ti ++ losIdDeSectores td)
+
+idDe :: Sector -> SectorId
+idDe (S sid c t) = sid
+
+--2
+poderDePropulsion :: Nave -> Int
+--Devuelve la suma de poder de propulsión de todos los motores de la nave.
+poderDePropulsion (N ts) = poderDePropulsionEn ts
+
+poderDePropulsionEn :: Tree Sector -> Int
+poderDePropulsionEn EmptyT = 0
+poderDePropulsionEn (NodeT s ti td) =
+  (poderDePropulsionDeSector s) + poderDePropulsionEn ti + poderDePropulsionEn td
+
+poderDePropulsionDeSector :: Sector -> Int
+poderDePropulsionDeSector (S _ c _) = poderDePropulsionDeComponentes c
+
+poderDePropulsionDeComponentes :: [Componente] -> Int
+poderDePropulsionDeComponentes [] = 0
+poderDePropulsionDeComponentes (x:xs) =
+  (poderDePropulsionDeComponente x) + poderDePropulsionDeComponentes xs
+
+poderDePropulsionDeComponente :: Componente -> Int
+poderDePropulsionDeComponente (Motor x) = x
+poderDePropulsionDeComponente _ = 0
+
+--3
+barriles :: Nave -> [Barril]
+--Devuelve tdos los barriles de la nave
+barriles (N ts) = barrilesEn ts
+
+barrilesEn :: Tree Sector -> [Barril]
+barrilesEn EmptyT = []
+barrilesEn (NodeT s ti td) =
+  barrilesEnSector s ++ barrilesEn ti ++ barrilesEn td
+
+barrilesEnSector :: Sector -> [Barril]
+barrilesEnSector (S _ c _) = barrilesEnComponentes c
+
+barrilesEnComponentes :: [Componente] -> [Barril]
+barrilesEnComponentes [] = []
+barrilesEnComponentes (x:xs) =
+  barrilesEnComponente x ++ barrilesEnComponentes xs
+
+barrilesEnComponente :: Componente -> [Barril]
+barrilesEnComponente (Almacen b) = b
+barrilesEnComponente _ = []
+
+--4
+agregarASector :: [Componente] -> SectorId -> Nave -> Nave
+agregarASector c id (N ts) = N (agregadoEnSector c id ts)
+
+agregadoEnSector :: [Componente] -> SectorId -> Tree Sector -> Tree Sector
+agregadoEnSector c id EmptyT = EmptyT
+agregadoEnSector c id (NodeT s ti td) =
+  if (esSector id s)
+    then NodeT (agregarComponentes c s) ti td
+    else NodeT s (agregadoEnSector c id ti) (agregadoEnSector c id td)
+
+agregarComponentes :: [Componente] -> Sector -> Sector
+agregarComponentes c (S id sc t) = S id (c++sc) t
+
+esSector :: SectorId -> Sector -> Bool
+esSector id (S sid _ _) = id == sid
+
+--5
+asignarTripulanteA :: Tripulante -> [SectorId] -> Nave -> Nave
+--Incorpora un tripulante a una lista de sectores de la nave.
+asignarTripulanteA t id (N ts) = N (asignarEn t id ts)
+
+asignarEn :: Tripulante -> [SectorId] -> Tree Sector -> Tree Sector
+asignarEn t ids EmptyT = EmptyT
+asignarEn t ids (NodeT s ti td) =
+  if (haySector ids s)
+    then NodeT (asignarAca t s) (asignarEn t ids ti) (asignarEn t ids td)
+    else NodeT s (asignarEn t ids ti) (asignarEn t ids td)
+
+haySector :: [SectorId] -> Sector -> Bool
+haySector [] s = False
+haySector (x:xs) s = esSector x s || haySector xs s
+
+asignarAca :: Tripulante -> Sector -> Sector
+asignarAca t (S id c st) = S id c (t:st)
+
+--6
+sectoresAsignados :: Tripulante -> Nave -> [SectorId]
+sectoresAsignados t (N ts) = sectoresDondeEsta t ts
+
+sectoresDondeEsta :: Tripulante -> Tree Sector -> [SectorId]
+sectoresDondeEsta t EmptyT = []
+sectoresDondeEsta t (NodeT s ti td) =
+  singularSi(esTripulanteEn t s) (idDe s) ++ sectoresDondeEsta t ti ++ sectoresDondeEsta t td
+
+esTripulanteEn :: Tripulante -> Sector -> Bool
+esTripulanteEn t (S _ _ ts) = elem t ts

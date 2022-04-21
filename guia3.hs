@@ -98,9 +98,11 @@ avanzarNPasos n (Cofre _ c) = avanzarNPasos (n-1) c
 avanzarNPasos n (Nada c) = avanzarNPasos (n-1) c
 
 cantTesorosHasta :: Camino -> Int -> Int
+--Precon: El número dado es mayor que 0.
 cantTesorosHasta c 0 = cantTesorosSiHay c
-cantTesorosHasta Fin n = 0 --caso especial borde
-cantTesorosHasta c n = cantTesorosSiHay c + cantTesorosHasta (sigCamino c) (n-1)
+cantTesorosHasta Fin n = 0
+cantTesorosHasta (Cofre o c) n = cantTesoros o + cantTesorosHasta c (n-1)
+cantTesorosHasta (Nada c) n =  cantTesorosHasta c (n-1)
 
 sigCamino :: Camino -> Camino
 --PARCIAL

@@ -211,10 +211,7 @@ leaves (NodeT x t1 t2) = leaves t1 ++ leaves t2
 heightT :: Tree a -> Int
 --dado un arbol devuelve su altura
 heightT EmptyT = 0
-heightT (NodeT x t1 t2) = 1 + (elMayor (heightT t1) (heightT t2))
-
-elMayor :: Int -> Int -> Int
-elMayor n m = if(n > m) then n else m
+heightT (NodeT x t1 t2) = 1 + (max (heightT t1) (heightT t2))
 
 mirrorT :: Tree a -> Tree a
 mirrorT EmptyT = EmptyT
@@ -257,9 +254,9 @@ levelConLevel xss [] = xss
 levelConLevel (xs:xss) (ys:yss) = (xs++ys) : levelConLevel xss yss
 
 --en realidad se le llama root
-elementoDe :: Tree a -> a
+rootT :: Tree a -> a
 --precon: el arbol dado no es emptyT.
-elementoDe (NodeT x t1 t2) = x
+rootT (NodeT x t1 t2) = x
 
 ramaMasLargaMenosEficiente :: Tree a -> [a]
 ramaMasLargaMenosEficiente EmptyT = []

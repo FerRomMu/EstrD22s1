@@ -276,29 +276,19 @@ agregarEnTodos :: a -> [[a]] -> [[a]]
 agregarEnTodos x [] = [[x]]
 agregarEnTodos x (ys:yss) = (x:ys) : agregarEnTodos x yss
 
---Intento mejorar todosLosCaminos de modo tal que me de un camino
---Por cada emptyT del arbol (La versión corregida da 1 camino por cada
---nodo. emptyT y otras combinaciones de caminos mas cortos)
---Esta versión tiene mas casos por ser bordes e intentar frenar
---el agregarEnTodos que generaba listas con la raiz cuando no debe.
-todosLosCaminos2 :: Tree a -> [[a]]
-todosLosCaminos2 EmptyT = []
---1.Aclaracion necesaria
-todosLosCaminos2 (NodeT x EmptyT EmptyT) = [[x]]
-todosLosCaminos2 (NodeT x EmptyT t2) = 
-    [[x]] ++ (agregarEnTodos2 x (todosLosCaminos2 t2))
-todosLosCaminos2 (NodeT x t1 EmptyT) = 
-    (agregarEnTodos2 x (todosLosCaminos2 t1)) ++ [[x]]
-todosLosCaminos2 (NodeT x t1 t2) = 
-    (agregarEnTodos2 x (todosLosCaminos2 t1)) ++ (agregarEnTodos2 x (todosLosCaminos2 t2))
---1: El caso emptyT emptyT es un caso especial que agregué post correción
---ya que si no se agregaban caminos de mas en agregarEnTodos (por cada nivel
---se agregaba la raiz)
+--Devuelve todos los caminos maximales.
+todosLosCaminosMaximal :: Tree a -> [[a]]
+todosLosCaminosMaximal EmptyT = []
+todosLosCaminosMaximal (NodeT x t1 t2) =
+  agregarEnCadaOSiMismo x ((todosLosCaminosMaximal t1) ++ (todosLosCaminosMaximal t2))
 
-agregarEnTodos2 :: a -> [[a]] -> [[a]]
-agregarEnTodos2 x [] = []
-agregarEnTodos2 x (ys:yss) = (x:ys) : agregarEnTodos2 x yss
-
+agregarEnCadaOSiMismo :: a -> [[a]] -> [[a]]
+--Dado un elemento y una lista agrega el elemento en cada elemento de la lista.
+--Si la lista es vacia agrega el elemento en una lista de listas.
+agregarEnCadaOSiMismo x [] = [[x]]
+--Caso borde (evita que el elemento se agregue en una lista solo):
+agregarEnCadaOSiMismo x [ys] = [x:ys]
+agregarEnCadaOSiMismo x (ys:yss) = (x:ys) : agregarEnCadaOSiMismo x yss
 
 --Expresiones aritmeticas
 

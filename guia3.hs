@@ -119,6 +119,14 @@ cantTesoros (x:xs) = unoSi(esTesoro x) + cantTesoros xs
 --2 Tipos arboreos
 data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
 
+arbolPrueba = NodeT 1
+                (NodeT 2
+                  EmptyT
+                  EmptyT)
+                (NodeT 3
+                  EmptyT
+                  EmptyT)
+
 unArbol = NodeT 5 
             (NodeT 4 
               (NodeT 3 
@@ -263,7 +271,7 @@ listaMasLarga x y = if (length x > length y) then x else y
 todosLosCaminos :: Tree a -> [[a]]
 todosLosCaminos EmptyT = []
 todosLosCaminos (NodeT x t1 t2) = 
-    (agregarEnTodos x (todosLosCaminos t1)) ++ (agregarEnTodos x (todosLosCaminos t2))
+    agregarEnTodos x ((todosLosCaminos t1) ++ (todosLosCaminos t2))
 
 agregarEnTodos :: a -> [[a]] -> [[a]]
 agregarEnTodos x [] = [[x]]

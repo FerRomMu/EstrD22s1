@@ -210,7 +210,18 @@ avanzarHasta (x:xs) (Bifurcacion c m1 m2) =
 --3.
 caminoAlTesoro :: Mapa -> [Dir]
 --precon: Existe tesoro y es unico.
-caminoAlTesoro m = snd (caminoAlTesoroConDir m)
+caminoAlTesoro (Fin c) = []
+caminoAlTesoro (Bifurcacion c m1 m2) =
+  if (hayTesoroEnCofre c)
+    then []
+    else if (hayTesoro m1)
+      then Izq : caminoAlTesoro m1
+      else Der : caminoAlTesoro m2
+
+--3 alternativo
+caminoAlTesoroWrapper :: Mapa -> [Dir]
+--precon: Existe tesoro y es unico.
+caminoAlTesoroWrapper m = snd (caminoAlTesoroConDir m)
 
 --Entiendo que es choclodigo pero no se me ocurre otra forma
 --de poder verificar si hay tesoro en esa rama para irla guardando

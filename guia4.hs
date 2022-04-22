@@ -243,7 +243,18 @@ caminoAlTesoroConDir (Bifurcacion c m1 m2) =
       
 --4
 caminoDeLaRamaMasLarga :: Mapa -> [Dir]
-caminoDeLaRamaMasLarga m = snd(caminoMasLargoContando m)
+caminoDeLaRamaMasLarga (Fin c) = []
+caminoDeLaRamaMasLarga (Bifurcacion c m1 m2) =
+  let
+    camino1 = caminoDeLaRamaMasLarga m1
+    camino2 = caminoDeLaRamaMasLarga m2
+  in
+    if(length camino1 > length camino2)
+      then Izq : camino1
+      else Der : camino2
+
+caminoDeLaRamaMasLargaWrapper :: Mapa -> [Dir]
+caminoDeLaRamaMasLargaWrapper m = snd(caminoMasLargoContando m)
 
 caminoMasLargoContando :: Mapa -> (Int, [Dir])
 caminoMasLargoContando (Fin c) = (1, [])

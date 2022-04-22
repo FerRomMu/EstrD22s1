@@ -17,11 +17,65 @@ sacarJamon (Capa x p) = if (esJamon x)
                         then sacarJamon p
                         else Capa x (sacarJamon p)
 
-tieneSoloSalsaYQueso :: Pizza -> Bool
+--Viendo la duda de discord me doy cuenta que entendí mal el enunciado. Lo dejo con
+--otro nombre mas adecuado y lo vuelve a resolver mas abajo.
+--Lo que este evalua es que la composición de la pizza sea solo de queso y salsa, 
+--pero no evalua que haya ambos.
+tieneSoloSalsaYQuesoOAlgunoDeLosDos :: Pizza -> Bool
 --Dice si una pizza tiene solo salsa y queso
-tieneSoloSalsaYQueso Prepizza = True
-tieneSoloSalsaYQueso (Capa x p) = (esSalsa x || esQueso x) 
-                                  && tieneSoloSalsaYQueso p 
+tieneSoloSalsaYQuesoOAlgunoDeLosDos Prepizza = True
+tieneSoloSalsaYQuesoOAlgunoDeLosDos (Capa x p) = (esSalsa x || esQueso x) 
+                                  && tieneSoloSalsaYQuesoOAlgunoDeLosDos p 
+
+--En este caso evalua que solo haya queso y salsa, puede haber mas queso o mas salsa pero es necesario que haya al menos uno de ambos.
+--Como hace 3 recorridos sobre la pizza para corroborar los ingredientes entiendo
+--que puede no ser la solucion mas feliz.
+tieneSoloSalsaYQueso :: Pizza -> Bool
+tieneSoloSalsaYQueso p = tieneQueso p && tieneSalsa p && not (tieneIngredienteEspecial p)
+
+--En esta solucion recorro la estructura entera solo una vez guardando los ingredientes.
+--Luego evaluo igual que en la solucion anterior(3 recursiones), 
+--con la diferencia de que la recursion es sobre una pizza de como maximo 4 capas.
+--Por lo tanto, en pizzas pequeñas es mejor la anterior solucion y en pizzas con
+--muchos ingredientes esta.
+tieneSoloSalsaYQueso2 :: Pizza -> Bool
+tieneSoloSalsaYQueso2 p = tieneSoloSalsaYQueso(pizzaConUnoDeCadaIngredienteEn p)
+
+pizzaConUnoDeCadaIngredienteEn :: Pizza -> Pizza
+pizzaConUnoDeCadaIngredienteEn  Prepizza = Prepizza
+pizzaConUnoDeCadaIngredienteEn  (Capa x p) =
+  agregarIngredienteSiNoEsta x (pizzaConUnoDeCadaIngredienteEn p)
+
+agregarIngredienteSiNoEsta :: Ingrediente -> Pizza -> Pizza
+agregarIngredienteSiNoEsta x Prepizza = Capa x Prepizza
+agregarIngredienteSiNoEsta x (Capa y p) =
+  if (esMismoIngrediente x y)
+    then Capa y p 
+    else Capa y (agregarIngredienteSiNoEsta x p)
+
+esMismoIngrediente :: Ingrediente -> Ingrediente -> Bool
+esMismoIngrediente Queso Queso = True
+esMismoIngrediente Salsa Salsa = True
+esMismoIngrediente Jamon Jamon = True
+esMismoIngrediente (Aceitunas _) (Aceitunas _) = True
+esMismoIngrediente _ _ = False
+
+tieneQueso :: Pizza -> Bool
+tieneQueso Prepizza = False
+tieneQueso (Capa c cs) = esQueso c || tieneQueso cs
+
+tieneSalsa :: Pizza -> Bool
+tieneSalsa Prepizza = False
+tieneSalsa (Capa c cs) = esSalsa c || tieneSalsa cs
+
+tieneIngredienteEspecial :: Pizza -> Bool
+--Devuelve si tiene jamon o aceitunas.
+tieneIngredienteEspecial Prepizza = False
+tieneIngredienteEspecial (Capa c cs) = esJamon c || esAceituna c || tieneIngredienteEspecial cs
+
+esAceituna :: Ingrediente -> Bool
+esAceituna (Aceitunas x) = True
+esAceituna _ = False
 
 esJamon :: Ingrediente -> Bool
 esJamon Jamon = True

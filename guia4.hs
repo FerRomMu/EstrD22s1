@@ -542,9 +542,12 @@ ma2 = M (Cazador "Alfa" ["Conejo","Conejo", "Ciervo", "Ardilla", "Ardilla"]
         )
       )
 
-ma3 = M (Explorador "wolfy" []
+ma3 = M (Explorador "wolfy" ["Norte","Sur","Este","Oeste"]
           (Cria "una")
-          (Cria "otra")
+          (Explorador "otro" ["Sur"]
+            (Cria "a")
+            (Cria "b")
+          )
         )
 --2
 buenaCaza :: Manada -> Bool
@@ -604,6 +607,53 @@ lobosQueExploraron t (Cazador _ _ l1 l2 l3) =
 --5
 exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 exploradoresPorTerritorio (M ls) =
+  exploradoresPorTerritorioDe ls
+
+exploradoresPorTerritorioDe :: Lobo -> [(Territorio, [Nombre])]
+exploradoresPorTerritorioDe (Cria n) = []
+exploradoresPorTerritorioDe (Explorador n t l1 l2) =
+  agregarLoboEnTerritorios n t
+                         (unirTuplasSinRepetidos (exploradoresPorTerritorioDe l1)
+                                                 (exploradoresPorTerritorioDe l2))
+exploradoresPorTerritorioDe (Cazador _ _ l1 l2 l3) =
+  unirTuplasSinRepetidos (exploradoresPorTerritorioDe l1)
+                        (unirTuplasSinRepetidos 
+                              (exploradoresPorTerritorioDe l2)
+                              (exploradoresPorTerritorioDe l3))
+
+agregarLoboEnTerritorios :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarLoboEnTerritorios n [] ys = ys
+agregarLoboEnTerritorios n (x:xs) ys = agregarLoboA n x 
+                                          (agregarLoboEnTerritorios n xs ys)
+
+agregarLoboA :: Nombre -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarLoboA n t [] = [(t, [n])]
+agregarLoboA n t (x:xs) =
+  let
+    (territorio, lobos) = x
+  in
+    if (territorio == t)
+      then (territorio, agregarSiNoEsta n lobos) : xs
+      else x : agregarLoboA n t xs
+
+unirTuplasSinRepetidos :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+unirTuplasSinRepetidos [] ys = ys
+unirTuplasSinRepetidos (x:xs) ys = agregarOUnirTerritorio x ys
+
+agregarOUnirTerritorio :: (Territorio, [Nombre]) -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarOUnirTerritorio x [] = [x]
+agregarOUnirTerritorio x (y:ys) =
+  let
+    (t, lobos1) = x
+    (territorio2, lobos2) = y
+  in
+    if(t == territorio2)
+      then (t, unirSinRepetidos lobos1 lobos2) : ys
+      else y : agregarOUnirTerritorio x ys
+
+--opcion fea
+exploradoresPorTerritorioFeo :: Manada -> [(Territorio, [Nombre])]
+exploradoresPorTerritorioFeo (M ls) =
   cadaExploradorDe (sinRepetidos(todosLosTerritorios ls)) ls
 
 todosLosTerritorios :: Lobo -> [Territorio]
@@ -645,7 +695,4 @@ losSuperioresA n (Cazador nl _ l1 l2 l3) =
         then (nl:n2, esSuperior2)
         else if (esSuperior3)
           then (nl:n3, esSuperior3)
-          else ([], esElLobo n nl)
-
-esElLobo :: Nombre -> Nombre -> Bool
-esElLobo n1 n2 = n1 == n2
+          else ([], n==nl)

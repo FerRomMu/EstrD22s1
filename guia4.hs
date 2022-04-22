@@ -462,7 +462,27 @@ esTripulanteEn t (S _ _ ts) = elem t ts
 
 --7
 tripulantes :: Nave -> [Tripulante]
-tripulantes (N ts) = sinRepetidos(tripulantesEn ts)
+tripulantes (N ts) = tripulantesEnSinRepetir ts
+
+tripulantesEnSinRepetir :: Tree Sector -> [Tripulante]
+tripulantesEnSinRepetir EmptyT = []
+tripulantesEnSinRepetir (NodeT s t1 t2) =
+  unirSinRepetidos (tripulantesEnSector s) 
+	(unirSinRepetidos (tripulantesEnSinRepetir t1) (tripulantesEnSinRepetir t2))
+
+agregarSiNoEsta :: Eq a => a -> [a] -> [a]
+agregarSiNoEsta x [] = x : []
+agregarSiNoEsta x (y:ys) =
+	if (x == y)
+	  then y:ys
+	  else y : agregarSiNoEsta x ys
+
+unirSinRepetidos :: Eq a => [a] -> [a] -> [a]
+unirSinRepetidos [] ys = ys
+unirSinRepetidos (x:xs) ys = agregarSiNoEsta x (unirSinRepetidos xs ys)
+
+tripulantesFeo :: Nave -> [Tripulante]
+tripulantesFeo (N ts) = sinRepetidos(tripulantesEn ts)
 
 sinRepetidos :: Eq a => [a] -> [a]
 sinRepetidos [] = []

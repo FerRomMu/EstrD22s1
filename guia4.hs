@@ -513,7 +513,11 @@ data Manada = M Lobo
 ma = M (Cazador "Alfa" ["Conejo","Conejo"]
         (Explorador "Beta" ["Norte"]
           (Cria "hija")
-          (Cria "otra")
+          (Cazador "pepe" []
+            (Cria "a")
+            (Cria "b")
+            (Cria "c")
+          )
         )
         (Cria "algo")
         (Cria "bebe")
@@ -696,3 +700,32 @@ losSuperioresA n (Cazador nl _ l1 l2 l3) =
         else if (esSuperior3)
           then (nl:n3, esSuperior3)
           else ([], n==nl)
+
+--Tratando de resolverlo sin usar funcion cascara. Se realiza mas recorridos sobre la
+--estructura (Una por losSuperioresA2 y luego en cada una donde hay cazador para ver si es
+--superior en estaLobo)
+superioresDelCazadorAlternativo :: Nombre -> Manada -> [Nombre]
+superioresDelCazadorAlternativo n (M l) = losSuperioresA2 n l
+
+losSuperioresA2 :: Nombre -> Lobo -> [Nombre]
+losSuperioresA2 n (Cria _) = []
+losSuperioresA2 n (Explorador _ _ l1 l2) =
+  unirSinRepetidos (losSuperioresA2 n l1) (losSuperioresA2 n l2)
+losSuperioresA2 n (Cazador nl p l1 l2 l3) =
+  let
+    cazador = (Cazador nl p l1 l2 l3)
+  in
+    singularSi(soySuperiorA n cazador) nl ++ (unirSinRepetidos (losSuperioresA2 n l1)
+    (unirSinRepetidos (losSuperioresA2 n l2) (losSuperioresA2 n l3)))
+
+soySuperiorA :: Nombre -> Lobo -> Bool
+--precon: el lobo dado es cazador.
+soySuperiorA n (Cazador _ _ l1 l2 l3) = estaLobo n l1 || estaLobo n l2 || estaLobo n l3 
+soySuperiorA _ _ = False
+
+estaLobo :: Nombre -> Lobo -> Bool
+estaLobo n (Cria nl) = n == nl
+estaLobo n (Explorador nl _ l1 l2) =
+  (n == nl) || estaLobo n l1 || estaLobo n l2
+estaLobo n (Cazador nl _ l1 l2 l3) =
+  (n == nl) || estaLobo n l1 || estaLobo n l2 || estaLobo n l3

@@ -290,6 +290,20 @@ agregarEnCadaOSiMismo x [] = [[x]]
 agregarEnCadaOSiMismo x [ys] = [x:ys]
 agregarEnCadaOSiMismo x (ys:yss) = (x:ys) : agregarEnCadaOSiMismo x yss
 
+--Probando otra implmentacion
+todosMaximal :: Tree a -> [[a]]
+todosMaximal EmptyT = []
+todosMaximal (NodeT x t1 t2) =
+  let recursion = todosMaximal t1 ++ todosMaximal t2
+  in
+    if (null recursion)
+      then [x] : recursion
+      else agregarEnCada x recursion
+
+agregarEnCada :: a -> [[a]] -> [[a]]
+agregarEnCada x [] = []
+agregarEnCada x (y:ys) = (x:y) : agregarEnCada x ys
+
 --Expresiones aritmeticas
 
 data ExpA = Valor Int

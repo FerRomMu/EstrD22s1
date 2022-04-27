@@ -1,5 +1,5 @@
-module Set2
-  (Set2, emptyS, addS, belongs, sizeS, removeS, unionS, setToList)
+module Set
+  (Set, emptyS, addS, belongs, sizeS, removeS, unionS, setToList)
 where
 
 --Funciones de guias anteriores
@@ -31,39 +31,39 @@ remove x (y:ys) =
     else y : remove x ys
 -------------------------------
 
-data Set2 a = S [a]
+data Set a = S [a]
 {--INVARIANTE DE REPRESENTACION:
   *La lista de elementos no tiene repetidos.
 --}
 
 --O(1)
-emptyS :: Set2 a
+emptyS :: Set a
 emptyS = S []
 
 --O(n)
-addS :: Eq a => a -> Set2 a -> Set2 a
+addS :: Eq a => a -> Set a -> Set a
 addS x (S xs) = S (agregarSiNoEsta x xs)
 
 --O(n)
-belongs :: Eq a => a -> Set2 a -> Bool
+belongs :: Eq a => a -> Set a -> Bool
 belongs x (S xs) = pertenece x xs
 
 --O(n)
-sizeS :: Eq a => Set2 a -> Int
+sizeS :: Eq a => Set a -> Int
 sizeS (S xs) = longitud xs
 
 --O(n)
-removeS :: Eq a => a -> Set2 a -> Set2 a
+removeS :: Eq a => a -> Set a -> Set a
 removeS x (S xs) = S(remove x xs)
 
 --O(n²)
-unionS :: Eq a => Set2 a -> Set2 a -> Set2 a
+unionS :: Eq a => Set a -> Set a -> Set a
 unionS (S xs) s = addAllS xs s
 
-addAllS :: Eq a => [a] -> Set2 a -> Set2 a
+addAllS :: Eq a => [a] -> Set a -> Set a
 addAllS [] s = s
 addAllS (x:xs) s = addS x (addAllS xs s)
 
 --O(1)
-setToList :: Eq a => Set2 a -> [a]
+setToList :: Eq a => Set a -> [a]
 setToList (S xs) = xs

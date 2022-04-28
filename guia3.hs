@@ -276,6 +276,7 @@ agregarEnTodos :: a -> [[a]] -> [[a]]
 agregarEnTodos x [] = [[x]]
 agregarEnTodos x (ys:yss) = (x:ys) : agregarEnTodos x yss
 
+{--Versiones viejas
 --Devuelve todos los caminos maximales.
 todosLosCaminosMaximal :: Tree a -> [[a]]
 todosLosCaminosMaximal EmptyT = []
@@ -303,8 +304,29 @@ todosMaximal (NodeT x t1 t2) =
 agregarEnCada :: a -> [[a]] -> [[a]]
 agregarEnCada x [] = []
 agregarEnCada x (y:ys) = (x:y) : agregarEnCada x ys
+--}
+--La que va
 
 --Expresiones aritmeticas
+--Resuelve por recursion estructural.
+todosLosCaminosMaximal :: Tree a -> [[a]]
+todosLosCaminosMaximal EmptyT = []
+todosLosCaminosMaximal (NodeT x t1 t2) =
+  agregarEnCadaOSiMismo x ((todosLosCaminosMaximal t1) ++ (todosLosCaminosMaximal t2))
+
+agregarEnCadaOSiMismo :: a -> [[a]] -> [[a]]
+--es subtarea, no resuelve por recursion.
+--Proposito: Determina si debe agregarse a si mismo o si hay una lista de listas donde 
+--agregar x en cada elemento.
+agregarEnCadaOSiMismo x xs = 
+  if (null xs)
+    then [[x]] --Agrega a si mismo
+    else agregarEnCada x xs --Agregar en cada
+
+agregarEnCada :: a -> [[a]] -> [[a]]
+--Resuelve por recursion estructural.
+agregarEnCada x [] = []
+agregarEnCada x (y:ys) = (x:y) : agregarEnCada x ys
 
 data ExpA = Valor Int
 	| Sum ExpA ExpA

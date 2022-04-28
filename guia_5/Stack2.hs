@@ -14,8 +14,7 @@ emptyS = S [] 0
 
 --O(1)
 isEmptyS :: Stack a -> Bool
-isEmptyS (S [] _) = True
-isEmptyS _ = False
+isEmptyS (S xs _) = null xs
 
 --O(1)
 push :: a -> Stack a -> Stack a
@@ -24,13 +23,11 @@ push x (S xs n) = S (x:xs) (n+1)
 --O(1)
 top :: Stack a -> a
 --precon: Hay elemento en la pila.
-top (S[] _) = error "No hay elemento en la pila."
 top (S xs _) = head xs
 
 --O(1)
 pop :: Stack a -> Stack a
 --precon: Hay elemento en la pila
-pop (S[] _) = error "No hay elemento en la pila."
 pop (S xs n) = S (tail xs) (n-1)
 
 --O(1)

@@ -22,8 +22,7 @@ emptyQ = Q []
 
 --O(1)
 isEmptyQ :: Queue a -> Bool
-isEmptyQ (Q []) = True
-isEmptyQ _ = False
+isEmptyQ (Q xs) = null xs
 
 --O(n)
 queue :: a -> Queue a -> Queue a

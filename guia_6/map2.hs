@@ -1,4 +1,4 @@
-module Map
+module Map2
   (Map, emptyM, assocM, lookupM, deleteM, keys)
 where
 

@@ -12,11 +12,11 @@ data Map k a = M [(k, a)]
 emptyM :: Map a k
 emptyM = M []
 
---O(n)
+--O(n)<-- con n igual al largo de la lista xs
 assocM :: Eq k => k -> v -> Map k v -> Map k v
 assocM c x (M xs) = M (agregarALaTuplaElValor c x xs)
 
---O(n)
+--O(n)<-- con n igual al largo de la lista dada
 agregarALaTuplaElValor :: Eq k => k -> v -> [(k,v)] -> [(k,v)]
 agregarALaTuplaElValor c x [] = [(c,x)]
 agregarALaTuplaElValor c x (y:ys) =
@@ -24,11 +24,11 @@ agregarALaTuplaElValor c x (y:ys) =
     then (c,x):ys
     else y : agregarALaTuplaElValor c x ys
 
---O(n)
+--O(n)<-- con n igual al largo de la lista xs
 lookupM :: Eq k => k -> Map k v -> Maybe v
 lookupM c (M xs) = findMaybe c xs
 
---O(n)
+--O(n)<-- con n igual al largo de la lista dada
 findMaybe :: Eq k => k -> [(k, v)] -> Maybe v
 findMaybe c [] = Nothing
 findMaybe c ((cl,x):xs) =
@@ -36,11 +36,11 @@ findMaybe c ((cl,x):xs) =
     then Just x
     else findMaybe c xs
 
---O(n)
+--O(n)<-- con n igual al largo de la lista xs
 deleteM :: Eq k => k -> Map k v -> Map k v
 deleteM c (M xs) = M (borrarTupla c xs)
 
---O(n)
+--O(n)<-- con n igual al largo de la lista dada
 borrarTupla :: Eq k => k -> [(k,v)] -> [(k,v)]
 borrarTupla c [] = []
 borrarTupla c (x:xs) =
@@ -48,11 +48,11 @@ borrarTupla c (x:xs) =
     then xs
     else x : borrarTupla c xs
 
---O(n)
+--O(n)<-- con n igual al largo de la lista xs
 keys :: Map k v -> [k]
 keys (M xs) = fstAll xs
 
---O(n)
+--O(n)<-- con n igual al largo de la lista dada
 fstAll :: [(a,b)] -> [a]
 fstAll [] = []
 fstAll (x:xs) = fst x : fstAll xs

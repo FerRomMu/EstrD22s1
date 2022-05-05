@@ -15,11 +15,11 @@ emptyPQ = Pq []
 isEmptyPQ :: PriorityQueue a -> Bool
 isEmptyPQ (Pq xs) = null xs
 
---O(n)
+--O(n)<-- con n igual al largo de la lista xs
 insertPQ :: Ord a => a -> PriorityQueue a -> PriorityQueue a
 insertPQ x (Pq xs) = Pq (insertarEnOrden x xs)
 
---O(n)
+--O(n)<-- con n igual al largo de la lista dada
 insertarEnOrden :: Ord a => a -> [a] -> [a]
 insertarEnOrden x [] = x:[]
 insertarEnOrden x (y:ys) =

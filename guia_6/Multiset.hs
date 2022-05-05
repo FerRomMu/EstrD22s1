@@ -75,6 +75,19 @@ interseccion (x:xs) m1 m2 =
   in
     assocM x ocurrencias (interseccion xs m1 m2)
 
-multiSetToList = error "implementar"
+--O(k) <-- donde k es igual a la cantidad de keys del map en el multiset.
+multiSetToList :: Ord a => MultiSet a -> [(a,Int)]
+multiSetToList (MS m) = mapToList m
 
+--O(k) <-- donde k es igual a la cantidad de keys del map 
+mapToList :: Ord k => Map k v -> [(k,v)]
+mapToList m = toListWithKeys (keys m) m
 
+--O(k) <-- donde k es igual a la cantidad de keys dadas 
+toListWithKeys :: Ord k => [k] -> Map k v -> [(k,v)]
+toListWithKeys [] m = []
+toListWithKeys (x:xs) m =
+  (x, fromJust(lookupM x m)) : toListWithKeys xs m
+
+ms1 = addMS 2(addMS 4(addMS 2(addMS 2 (addMS 2 (emptyMS)))))
+ms2 = addMS 3(addMS 8(addMS 5(addMS 4231(addMS 1(addMS 32(emptyMS))))))

@@ -76,3 +76,24 @@ mergeMapsWithKey (x:xs) m n =
   in
     assocM x valueMerge (mergeMapsWithKey xs m n)
 
+--O(n*m) donde n*m es el costo de indexarAux
+indexar :: [a] -> Map Int a
+indexar xs = indexarAux xs 0
+
+--O(n*m) donde n es el largo de la lista dada y m es el costo de hacer assocM
+indexarAux :: [a] -> Int -> Map Int a
+indexarAux [] n = emptyM
+indexarAux (x:xs) n = assocM n x (indexarAux xs (n+1))
+
+--O(s*m) <- donde s es el largo del string dado y m es el costo de incrementarElDeKeyTotal
+ocurrencias :: String -> Map Char Int
+ocurrencias [] = emptyM
+ocurrencias (x:xs) = incrementarElDeKeyTotal x (ocurrencias xs)
+
+--O(m) <- donde m es el costo de hacer lookupM x m o de hacer assocM x i m
+incrementarElDeKeyTotal :: Eq k => k -> Map k Int -> Map k Int
+incrementarElDeKeyTotal x m =
+  let
+    aIncrementar = fromMaybe 0 (lookupM x m)
+  in
+    assocM x (aIncrementar + 1) m

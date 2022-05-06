@@ -1,4 +1,5 @@
 import Map
+import MyJust
 {--
 module MultiSet
   (MultiSet, emptyMS, addMS, ocurrencesMS, unionMS, intersectionMS,
@@ -27,11 +28,6 @@ addOcurrences n x (MS m) = MS(assocM x n m)
 ocurrencesMS :: Ord a => a -> MultiSet a -> Int
 ocurrencesMS x (MS m) = fromMaybe 0 (lookupM x m)
 
---O(1)
-fromMaybe :: a -> Maybe a -> a
-fromMaybe x Nothing = x
-fromMaybe x (Just y) = y
-
 --O(n*m) <-- dado por addAllFromMap
 unionMS :: Ord a => MultiSet a -> MultiSet a -> MultiSet a
 unionMS (MS m) ns = addAllFromMap (keys m) m ns
@@ -48,11 +44,6 @@ addAllFromMap (k:ks) ma ms =
       ocurrenciasTotales
       k
       (addAllFromMap ks ma ms)
-
---Precon: El dato dado no es Nothing.
---O(1)
-fromJust :: Maybe a -> a
-fromJust (Just x) = x
 
 --O(l1*l2 + n*m) aclarado en las subtareas.
 intersectionMS :: Ord a => MultiSet a -> MultiSet a -> MultiSet a

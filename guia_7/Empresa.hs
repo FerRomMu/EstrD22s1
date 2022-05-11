@@ -2,6 +2,11 @@ import Empleado
 import Map
 import Set
 
+module Empresa
+  (consEmpresa, buscarPorCUIL, empleadosDelSector, todosLosCUIL,
+  todosLosSectores, agregarEmpleado, agregarASector, borrarEmpleado)
+where
+
 type SectorId = Int
 type CUIL = Int
 

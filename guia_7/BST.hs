@@ -117,7 +117,6 @@ elMinimoMayorA x (NodeT y ti td) =
     else elMinimoMayorA x td
 
 --O(n²) donde n es cada elemento del arbol.
---Cambie el tree por lo dicho en clases.
 balanceado :: Tree a -> Bool
 balanceado EmptyT = True
 balanceado (NodeT x ti td) =

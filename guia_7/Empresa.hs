@@ -21,14 +21,15 @@ INVARIANTE DE REPRESENTACION:
 consEmpresa :: Empresa
 consEmpresa = ConsE EmptyMap EmptyMap
 
---O(log m) <- donde log m es el costo de lookupM.
+--O(log E) <- donde log E es la cantidad de empleados.
+--Justificación: Solo se recorre el map de empleados.
 --Precon: Debe haber tal empleado con dicho CUIL.
 buscarPorCUIL :: CUIL -> Empresa -> Empleado
 buscarPorCUIL c (ConsE m mc) = fromJust(lookupM c mc)
 
---O(s o log m) <- donde s es el costo de setToList y log m el costo de lookupM.
+--O(s + log m) <- donde
 empleadosDelSector :: SectorId -> Empresa -> [Empleado]
---ACLARACION: Aca la funcion es total, si se desea que falle de no existir tal sector
+  --ACLARACION: Aca la funcion es total, si se deseaque falle de no existir tal sector
 --se debe cambiar fromMaybe por un fromJust.
 empleadosDelSector sid (ConsE ms m) = setToList (fromMaybe EmptyS (lookupM sid ms))
 

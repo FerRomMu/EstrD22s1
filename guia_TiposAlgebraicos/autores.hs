@@ -105,4 +105,25 @@ nroProgramasDePersona (MkO mc mp) p =
 --por la persona dada en el map de personas será log p, mientras que al ser O(1)
 --hacer sizeS es menospreciable.
 
+------
+---NUEVO ORGANIZADOR
+data Organizador = MkO (Map Checksum (Set Persona)) (Map Persona (Set Checksum)) (Maybe Checksum) int
+-- *Mismos que el anterior y..
+-- *Si la estructura esta vacía el maybe debe ser igual a Nothing y el int 0.
+-- *Si la estructura tiene algún programa, el maybe debe tener el checksum con mas
+-- autores y el int debe ser igual a la cantidad de autores de ese checksum.
 
+elMayorPrograma :: Organizador -> Maybe Checksum
+elMayorPrograma (MkO mc mp m n) = m
+
+nuevo :: Organizador
+nuevo = MkO emptyM emptyM Nothing 0
+
+agregarPrograma :: Organizador -> Checksum -> Set Persona -> Organizador
+agregarPrograma (MkO mc mp m n) c sp =
+  if (sizeS sp > n)
+    then MkO mcActualizado mpActualizado (Just m) (sizeS sp)
+    else MkO mcActualizado mpActualizado m n
+  where
+  mcActualizado = assocM c sp mc
+  mpActualizado = agregarAAutores c (set2List sp) mp

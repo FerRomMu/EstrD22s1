@@ -102,57 +102,5 @@ PUNTO 4.
 punto4.cpp
 
 PUNTO 5.
+Fraccion.cpp
 
-struct Fraccion {
-  int numerador;
-  int denominador;
-}
-
-Fraccion consFraccion(int numerador, int denominador){
-  Fraccion f;
-  f.numerador = numerador;
-  f.denominador = denominador;
-  return f;
-}
-
-int numerador(Fraccion f){
-   return f.numerador;
-}
-
-int denominador(Fraccion f){
-  return f.denominador;
-}
-
-float division(Fraccion f){
-  return f.numerador / f.denominador;
-}
-
-Fraccion multF(Fraccion f1, Fraccion f2){
-  nu = f1.numerador * f2.numerador;
-  de = f1.denominador * f2.denominador;
-  return consFraccion(nu, de);
-}
-
-Fraccion simplificada(Fraccion f){
-  int m = min(f.numerador, f.denominador);
-  int nu = f.numerador;
-  int de = f.denominador;
-  for(i=m;i>1;i--){
-    if(esDivisor(i,nu) && esDivisor(i,de){
-      nu = nu/i;
-      de = de/i;
-      i = min(nu,de);
-    }
-  }
-  return consFraccion(nu,de);
-}
-
-bool esDivisor(int n, int m){
-  return m%n==0;
-}
-
-Fraccion sumF(Fraccion f1, Fraccion f2){
-  nu = (f1.numerador * f2.denominador) + (f2.numerador * f1.denominador);
-  de = f1.denominador * f2.denominador;
-  return consFraccion(nu,de);
-}  

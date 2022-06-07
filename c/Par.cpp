@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Par.h"
+
 using namespace std;
 
 Par consPar(int x, int y){

@@ -1,0 +1,9 @@
+guia2files/ArrayList.cpp
+guia2files/ArrayList.h
+guia2files/Entrenador.cpp
+guia2files/Entrenador.h
+guia2files/Persona.cpp
+guia2files/Persona.h
+guia2files/Pokemon.cpp
+guia2files/Pokemon.h
+guia2files/usuarioArray.cpp

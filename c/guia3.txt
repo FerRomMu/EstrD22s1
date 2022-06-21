@@ -1,0 +1,7 @@
+guia3files/LinkedList.cpp
+guia3files/LinkedList2.cpp
+guia3files/Set.cpp
+guia3files/UsuarioLinkedList.cpp
+guia3files/Queue.cpp
+guia3files/Arbol.cpp
+guia3files/UsuarioArbol.cpp
